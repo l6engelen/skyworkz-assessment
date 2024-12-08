@@ -44,107 +44,40 @@ export const PingResponses: ApiResponseModel[] = [
   },
 ];
 
-// Users Projects
-export const UsersProjectsResponses: ApiResponseModel[] = [
+// News
+export const NewsResponses: ApiResponseModel[] = [
   {
     statusCode: "200",
     properties: {
-      user: typeString,
-      projects_info: {
+      news_items: typeArray,
+    },
+  },
+  {
+    statusCode: "500",
+    properties: {
+      ...propertyMessage,
+    },
+  },
+];
+
+// Newsitems
+export const NewsitemsResponses: ApiResponseModel[] = [
+  {
+    statusCode: "200",
+    properties: {
+      news_item: {
         type: object,
         properties: {
-          key: typeString,
-          items: typeArray,
+          key: {
+            type: object,
+            properties: {
+              id: typeString,
+              description: typeString,
+              date: typeString,
+              title: typeString,
+            },
+          },
         },
-      },
-    },
-  },
-  {
-    statusCode: "400",
-    properties: {
-      ...propertyMissingParameter,
-    },
-  },
-  {
-    statusCode: "500",
-    properties: {
-      ...propertyMessage,
-    },
-  },
-];
-
-// Users Token
-export const TokenResponses: ApiResponseModel[] = [
-  {
-    statusCode: "200",
-    properties: {
-      role: typeString,
-      id_token: typeString,
-      access_token: typeString,
-      refresh_token: typeString,
-    },
-  },
-  {
-    statusCode: "400",
-    properties: {
-      ...propertyMissingParameter,
-    },
-  },
-  {
-    statusCode: "403",
-    properties: {
-      ...propertyMessage,
-    },
-  },
-  {
-    statusCode: "500",
-    properties: {
-      role: typeString,
-      refresh_token: typeString,
-      ...propertyMessage,
-    },
-  },
-];
-
-// Projects Stages
-export const ProjectStagesResponses: ApiResponseModel[] = [
-  {
-    statusCode: "200",
-    properties: {
-      stages: {
-        type: array,
-        items: typeString,
-      },
-    },
-  },
-  {
-    statusCode: "400",
-    properties: {
-      ...propertyMissingParameter,
-    },
-  },
-  {
-    statusCode: "403",
-    properties: {
-      ...propertyMessage,
-    },
-  },
-  {
-    statusCode: "500",
-    properties: {
-      ...propertyMessage,
-    },
-  },
-];
-
-// Projects List
-export const ProjectListResponses: ApiResponseModel[] = [
-  {
-    statusCode: "200",
-    properties: {
-      projects: {
-        type: array,
-        items: typeString,
       },
     },
   },

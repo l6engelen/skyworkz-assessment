@@ -19,6 +19,7 @@ export class DatabaseStack extends Stack {
     const newsTable = new dynamodb.Table(this, "NewsTable", {
       tableName: `${project}-${stage}-news`,
       partitionKey: { name: "id", type: dynamodb.AttributeType.STRING },
+      sortKey: { name: "date", type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: RemovalPolicy.DESTROY,
     });

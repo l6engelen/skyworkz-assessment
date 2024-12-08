@@ -22,6 +22,14 @@ const props = {
   },
 } as BaseStackProps;
 
-new ApiStack(app, `${props.project}-${props.stage}-api`, props);
-
-new DatabaseStack(app, `${props.project}-${props.stage}-database`, props);
+const databaseStack = new DatabaseStack(
+  app,
+  `${props.project}-${props.stage}-database`,
+  props
+);
+const apiStack = new ApiStack(
+  app,
+  `${props.project}-${props.stage}-api`,
+  props
+);
+apiStack.addDependency(databaseStack);

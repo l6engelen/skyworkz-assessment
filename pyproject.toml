@@ -8,6 +8,7 @@ package-mode = false
 [tool.poetry.dependencies]
 python = "^3.9,<4.0"
 requests = "^2.32.3"
+boto3 = "^1.35.76"
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.13.8"

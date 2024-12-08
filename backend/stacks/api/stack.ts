@@ -18,14 +18,13 @@ import * as Responses from "./response-models";
 
 import { BaseStackProps } from "../../lib/interfaces/stack-props";
 
-export interface ApiProps extends BaseStackProps {
-}
+export interface ApiProps extends BaseStackProps {}
 
 export class ApiStack extends Stack {
   constructor(scope: Construct, id: string, props: ApiProps) {
     super(scope, id);
 
-    const { project, stage } = props;
+    const { project, stage, ssmConfig } = props;
 
     // Logs
     const logGroup = new logs.LogGroup(this, "Logs", {
@@ -49,7 +48,7 @@ export class ApiStack extends Stack {
 
     const deployment: apigateway.Deployment = new apigateway.Deployment(
       this,
-      "Deployment",
+      `Deployment${Date.now()}`,
       {
         api: api,
       }
@@ -84,6 +83,9 @@ export class ApiStack extends Stack {
 
     // Resources
     const pingResource: apigateway.Resource = api.root.addResource("ping");
+    const newsResource: apigateway.Resource = api.root.addResource("news");
+    const newsitemResource: apigateway.Resource =
+      api.root.addResource("newsitem");
 
     // Lambda Api utils layer
     const lambdaApiUtils: PythonLayerVersion = new PythonLayerVersion(
@@ -96,7 +98,7 @@ export class ApiStack extends Stack {
       }
     );
 
-    // Ping
+    // GET /ping
     new APIMethodConstruct(this, "Ping", {
       api: api,
       projectName: project,
@@ -108,6 +110,61 @@ export class ApiStack extends Stack {
       responseModels: Responses.PingResponses,
       methodAuthorizationType: apigateway.AuthorizationType.NONE,
       // authorizer: cognitoAuthorizer,
+    });
+
+    const newsTableName = ssm.StringParameter.valueForStringParameter(
+      this,
+      ssmConfig.newsTableName
+    );
+
+    // GET /news
+    new APIMethodConstruct(this, "News", {
+      api: api,
+      projectName: project,
+      methodName: "news",
+      methodType: "GET",
+      resource: newsResource,
+      lambdaCodePath: "lib/lambdas/api/news",
+      layers: [lambdaApiUtils],
+      responseModels: Responses.NewsResponses,
+      methodAuthorizationType: apigateway.AuthorizationType.NONE,
+      // authorizer: cognitoAuthorizer,
+      lambdaEnvironment: {
+        NEWS_TABLE_NAME: newsTableName,
+      },
+      policyStatements: [
+        new iam.PolicyStatement({
+          actions: ["dynamodb:Scan"],
+          resources: [
+            `arn:aws:dynamodb:${this.region}:${this.account}:table/${newsTableName}`,
+          ],
+        }),
+      ],
+    });
+
+    // POST /newsitem
+    new APIMethodConstruct(this, "NewsItem", {
+      api: api,
+      projectName: project,
+      methodName: "newsitem",
+      methodType: "POST",
+      resource: newsitemResource,
+      lambdaCodePath: "lib/lambdas/api/newsitem",
+      layers: [lambdaApiUtils],
+      responseModels: Responses.NewsitemsResponses,
+      methodAuthorizationType: apigateway.AuthorizationType.NONE,
+      // authorizer: cognitoAuthorizer,
+      lambdaEnvironment: {
+        NEWS_TABLE_NAME: newsTableName,
+      },
+      policyStatements: [
+        new iam.PolicyStatement({
+          actions: ["dynamodb:PutItem"],
+          resources: [
+            `arn:aws:dynamodb:${this.region}:${this.account}:table/${newsTableName}`,
+          ],
+        }),
+      ],
     });
   }
 }
