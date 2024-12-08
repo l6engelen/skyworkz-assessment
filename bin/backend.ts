@@ -6,8 +6,8 @@ import * as cdk from "aws-cdk-lib";
 import { BaseStackProps } from "../lib/interfaces/stack-props";
 import { EnvironmentConfig } from "../lib/interfaces/cdk-config";
 
-import { ApiStack } from "../stacks/api/stack";
-import { DatabaseStack } from "../stacks/database/stack";
+import { ApiStack } from "../lib/stacks/api/stack";
+import { DatabaseStack } from "../lib/stacks/database/stack";
 
 const app = new cdk.App();
 const envconfig = app.node.tryGetContext("environment") as EnvironmentConfig;
