@@ -9,16 +9,16 @@ import {
   aws_logs as logs,
   aws_cognito as cognito,
 } from "aws-cdk-lib";
-import { Construct } from "constructs";
-
 import { PythonLayerVersion } from "@aws-cdk/aws-lambda-python-alpha";
+
+import { Construct } from "constructs";
 
 import { APIMethodConstruct } from "../../lib/constructs/api-method";
 import * as Responses from "./response-models";
 
-export interface ApiProps extends StackProps {
-  project: string;
-  stage: string;
+import { BaseStackProps } from "../../lib/interfaces/stack-props";
+
+export interface ApiProps extends BaseStackProps {
 }
 
 export class ApiStack extends Stack {
