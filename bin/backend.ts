@@ -8,6 +8,7 @@ import { EnvironmentConfig } from "../lib/interfaces/cdk-config";
 
 import { ApiStack } from "../lib/stacks/api/stack";
 import { DatabaseStack } from "../lib/stacks/database/stack";
+import { FrontendStack } from "../lib/stacks/frontend/stack";
 
 const app = new cdk.App();
 const envconfig = app.node.tryGetContext("environment") as EnvironmentConfig;
@@ -19,6 +20,7 @@ const props = {
   stage: stage,
   ssmConfig: {
     newsTableName: `/${envconfig.project}/${stage}/dynamodb/table-name`,
+    apiGatewayId: `/${envconfig.project}/${stage}/api-gateway/id`,
   },
 } as BaseStackProps;
 
@@ -33,3 +35,10 @@ const apiStack = new ApiStack(
   props
 );
 apiStack.addDependency(databaseStack);
+
+const frontendStack = new FrontendStack(
+  app,
+  `${props.project}-${props.stage}-frontend`,
+  props
+);
+frontendStack.addDependency(apiStack);

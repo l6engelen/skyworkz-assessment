@@ -51,12 +51,9 @@ ping()
 news()
 
 
-# data = {
-#     "title": "More News",
-#     "description": "This is a other news item"
-# }
-# newsitem(data)
-# news()
+data = {"title": "More News", "description": "This is a other news item"}
+newsitem(data)
+news()
 
 # from boto3.dynamodb.conditions import Attr
 # import boto3
