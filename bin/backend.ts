@@ -3,12 +3,12 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 import * as cdk from "aws-cdk-lib";
-import { BaseStackProps } from "../lib/interfaces/stack-props";
-import { EnvironmentConfig } from "../lib/interfaces/cdk-config";
+import { BaseStackProps } from "../backend/interfaces/stack-props";
+import { EnvironmentConfig } from "../backend/interfaces/cdk-config";
 
-import { ApiStack } from "../lib/stacks/api/stack";
-import { DatabaseStack } from "../lib/stacks/database/stack";
-import { FrontendStack } from "../lib/stacks/frontend/stack";
+import { ApiStack } from "../backend/stacks/api/stack";
+import { DatabaseStack } from "../backend/stacks/database/stack";
+import { FrontendStack } from "../backend/stacks/frontend/stack";
 
 const app = new cdk.App();
 const envconfig = app.node.tryGetContext("environment") as EnvironmentConfig;
