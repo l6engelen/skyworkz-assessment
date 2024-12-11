@@ -24,8 +24,8 @@ def request_post(url, data, headers=None):
     return process_response(response)
 
 
-stage = "dev"
-api_id = "z8fnuqzba1"
+stage = "api"
+api_id = "mvprx0of0m"
 base_url = f"https://{api_id}.execute-api.eu-west-1.amazonaws.com"
 
 
@@ -47,11 +47,19 @@ def newsitem(item):
     request_post(endpoint_url, item)
 
 
+def pre_signed_url():
+    endpoint = "pre-signed-url"
+    endpoint_url = f"{base_url}/{stage}/{endpoint}"
+    query_params = {"filename": "test.jpg"}
+    full_endpoint_url = f"{endpoint_url}?{urlencode(query_params)}"
+    request_get(full_endpoint_url)
+
+
 ping()
 news()
+# pre_signed_url()
 
-
-data = {"title": "More News", "description": "This is a other news item"}
+data = {"title": "First News", "description": "This is a news item"}
 newsitem(data)
 news()
 
@@ -71,7 +79,7 @@ news()
 #     Returns:
 #         List of news items matching the criteria.
 #     """
-#     table = dynamodb.Table("skyworkz-dev-news")
+#     table = dynamodb.Table("skyworkz-news")
 
 #     # Scan the table
 #     scan_params = {}

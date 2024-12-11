@@ -12,33 +12,28 @@ import { FrontendStack } from "../lib/stacks/frontend/stack";
 
 const app = new cdk.App();
 const envconfig = app.node.tryGetContext("environment") as EnvironmentConfig;
-const stage = process.env.STAGE;
 
 const props = {
   env: { account: envconfig.awsAccount, region: envconfig.awsRegion },
   project: envconfig.project,
-  stage: stage,
   ssmConfig: {
-    newsTableName: `/${envconfig.project}/${stage}/dynamodb/table-name`,
-    apiGatewayId: `/${envconfig.project}/${stage}/api-gateway/id`,
+    newsTableName: `/${envconfig.project}/dynamodb/table-name`,
+    apiGatewayId: `/${envconfig.project}/api-gateway/id`,
+    uploadBucketName: `/${envconfig.project}/s3/upload-bucket-name`,
   },
 } as BaseStackProps;
 
 const databaseStack = new DatabaseStack(
   app,
-  `${props.project}-${props.stage}-database`,
+  `${props.project}-database`,
   props
 );
-const apiStack = new ApiStack(
-  app,
-  `${props.project}-${props.stage}-api`,
-  props
-);
+const apiStack = new ApiStack(app, `${props.project}-api`, props);
 apiStack.addDependency(databaseStack);
 
 const frontendStack = new FrontendStack(
   app,
-  `${props.project}-${props.stage}-frontend`,
+  `${props.project}-frontend`,
   props
 );
 frontendStack.addDependency(apiStack);
