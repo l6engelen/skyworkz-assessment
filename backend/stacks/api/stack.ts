@@ -97,7 +97,7 @@ export class ApiStack extends Stack {
       this,
       "LambdaApiUtilsLayer",
       {
-        entry: "./lib/layers/api/",
+        entry: "./backend/layers/api/",
         compatibleRuntimes: [lambda.Runtime.PYTHON_3_9],
         layerVersionName: `${project}-api-utils`,
       }
@@ -110,7 +110,7 @@ export class ApiStack extends Stack {
       methodName: "ping",
       methodType: "GET",
       resource: pingResource,
-      lambdaCodePath: "lib/lambdas/api/ping",
+      lambdaCodePath: "backend/lambdas/api/ping",
       layers: [lambdaApiUtils],
       responseModels: Responses.PingResponses,
       methodAuthorizationType: apigateway.AuthorizationType.NONE,
@@ -129,7 +129,7 @@ export class ApiStack extends Stack {
       methodName: "news",
       methodType: "GET",
       resource: newsResource,
-      lambdaCodePath: "lib/lambdas/api/news",
+      lambdaCodePath: "backend/lambdas/api/news",
       layers: [lambdaApiUtils],
       responseModels: Responses.NewsResponses,
       requestParameters: {
@@ -158,7 +158,7 @@ export class ApiStack extends Stack {
       methodName: "newsitem",
       methodType: "POST",
       resource: newsitemResource,
-      lambdaCodePath: "lib/lambdas/api/newsitem",
+      lambdaCodePath: "backend/lambdas/api/newsitem",
       layers: [lambdaApiUtils],
       responseModels: Responses.NewsitemsResponses,
       methodAuthorizationType: apigateway.AuthorizationType.NONE,
@@ -195,7 +195,7 @@ export class ApiStack extends Stack {
       methodName: "pre-signed-url",
       methodType: "GET",
       resource: preSignedUrlResource,
-      lambdaCodePath: "lib/lambdas/api/pre-signed-url",
+      lambdaCodePath: "backend/lambdas/api/pre-signed-url",
       layers: [lambdaApiUtils],
       responseModels: Responses.PreSignedUrlResponses,
       requestParameters: {

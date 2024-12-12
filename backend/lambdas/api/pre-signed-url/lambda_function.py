@@ -18,7 +18,7 @@ def handler(event, context):
     try:
         response = s3_client.generate_presigned_post(
             Bucket=os.environ["BUCKET_NAME"],
-            Key=f"{upload_prefix}/{uuid.uuid4()}_{filename}",
+            Key=f"{upload_prefix}/{unique_filename}",
             ExpiresIn=3600,
         )
     except Exception as e:
