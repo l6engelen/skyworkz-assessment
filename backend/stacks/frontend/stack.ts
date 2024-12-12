@@ -133,67 +133,6 @@ export class FrontendStack extends Stack {
         ],
       }),
     });
-    // new cr.AwsCustomResource(this, "GrantCloudFrontAccess", {
-    //   onCreate: {
-    //     service: "S3",
-    //     action: "putBucketPolicy",
-    //     parameters: {
-    //       Bucket: uploadBucket.bucketName,
-    //       Policy: JSON.stringify({
-    //         Version: "2012-10-17",
-    //         Statement: [
-    //           {
-    //             Effect: "Allow",
-    //             Principal: {
-    //               Service: "cloudfront.amazonaws.com",
-    //             },
-    //             Action: "s3:GetObject",
-    //             Resource: `arn:aws:s3:::${uploadBucket.bucketName}/*`,
-    //             Condition: {
-    //               StringEquals: {
-    //                 "AWS:SourceArn": `arn:aws:cloudfront::${this.account}:distribution/${distribution.distributionId}`,
-    //               },
-    //             },
-    //           },
-    //         ],
-    //       }),
-    //     },
-    //     physicalResourceId: cr.PhysicalResourceId.of(
-    //       `${uploadBucket.bucketName}-cloudfront-access`
-    //     ),
-    //   },
-    //   onUpdate: {
-    //     service: "S3",
-    //     action: "putBucketPolicy",
-    //     parameters: {
-    //       Bucket: uploadBucket.bucketName,
-    //       Policy: JSON.stringify({
-    //         Version: "2012-10-17",
-    //         Statement: [
-    //           {
-    //             Effect: "Allow",
-    //             Principal: {
-    //               Service: "cloudfront.amazonaws.com",
-    //             },
-    //             Action: "s3:GetObject",
-    //             Resource: `arn:aws:s3:::${uploadBucket.bucketName}/*`,
-    //             Condition: {
-    //               StringEquals: {
-    //                 "AWS:SourceArn": `arn:aws:cloudfront::${this.account}:distribution/${distribution.distributionId}`,
-    //               },
-    //             },
-    //           },
-    //         ],
-    //       }),
-    //     },
-    //     physicalResourceId: cr.PhysicalResourceId.of(
-    //       `${uploadBucket.bucketName}-cloudfront-access`
-    //     ),
-    //   },
-    //   policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
-    //     resources: [`arn:aws:s3:::${uploadBucket.bucketName}`],
-    //   }),
-    // });
 
     new s3Deployment.BucketDeployment(this, "DeployFrontend", {
       sources: [s3Deployment.Source.asset("./frontend/out")],
