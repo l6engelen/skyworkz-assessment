@@ -7,6 +7,8 @@ import {
   aws_ssm as ssm,
   aws_logs as logs,
   aws_cognito as cognito,
+  aws_secretsmanager as secretsmanager,
+  SecretValue,
 } from "aws-cdk-lib";
 import { PythonLayerVersion } from "@aws-cdk/aws-lambda-python-alpha";
 
@@ -40,7 +42,6 @@ export class ApiStack extends Stack {
       cloudWatchRole: true,
       endpointTypes: [apigateway.EndpointType.REGIONAL],
     });
-    //ceck witout cors
 
     new ssm.StringParameter(this, "ApiGatewayIdParameter", {
       parameterName: ssmConfig.apiGatewayId,
@@ -54,13 +55,13 @@ export class ApiStack extends Stack {
         api: api,
       }
     );
-    api.deploymentStage = new apigateway.Stage(this, "Stage", {
+    const stage = new apigateway.Stage(this, "Stage", {
       stageName: "api",
       deployment: deployment,
       cachingEnabled: false, // tmp
       accessLogDestination: new apigateway.LogGroupLogDestination(logGroup),
       accessLogFormat: apigateway.AccessLogFormat.jsonWithStandardFields({
-        caller: false,
+        caller: true,
         httpMethod: true,
         ip: true,
         protocol: true,
@@ -73,14 +74,28 @@ export class ApiStack extends Stack {
       loggingLevel: apigateway.MethodLoggingLevel.INFO,
       metricsEnabled: true,
     });
+    api.deploymentStage = stage;
 
-    // const cognitoAuthorizer = new apigateway.CognitoUserPoolsAuthorizer(
-    //   this,
-    //   "CognitoAuthorizer",
-    //   {
-    //     cognitoUserPools: [userPool],
-    //   }
-    // );
+    const apiKey = api.addApiKey("ApiKey", {
+      apiKeyName: "CloudFrontApiKey",
+    });
+    const usagePlan = api.addUsagePlan("UsagePlan", {
+      apiStages: [
+        {
+          api: api,
+          stage: stage,
+        },
+      ],
+      throttle: {
+        rateLimit: 10,
+        burstLimit: 2,
+      },
+      quota: {
+        limit: 20,
+        period: apigateway.Period.DAY,
+      },
+    });
+    usagePlan.addApiKey(apiKey);
 
     // Resources
     const pingResource: apigateway.Resource = api.root.addResource("ping");
@@ -112,7 +127,7 @@ export class ApiStack extends Stack {
       layers: [lambdaApiUtils],
       responseModels: Responses.PingResponses,
       methodAuthorizationType: apigateway.AuthorizationType.NONE,
-      // authorizer: cognitoAuthorizer,
+      apiKeyRequired: true,
     });
 
     // GET /news
@@ -130,7 +145,7 @@ export class ApiStack extends Stack {
         "method.request.querystring.nex_key": false,
       },
       methodAuthorizationType: apigateway.AuthorizationType.NONE,
-      // authorizer: cognitoAuthorizer,
+      apiKeyRequired: true,
       lambdaEnvironment: {
         NEWS_TABLE_NAME: sharedConfig.newsTableName,
       },
@@ -155,7 +170,7 @@ export class ApiStack extends Stack {
       layers: [lambdaApiUtils],
       responseModels: Responses.NewsitemsResponses,
       methodAuthorizationType: apigateway.AuthorizationType.NONE,
-      // authorizer: cognitoAuthorizer,
+      apiKeyRequired: true,
       lambdaEnvironment: {
         NEWS_TABLE_NAME: sharedConfig.newsTableName,
       },
@@ -183,7 +198,7 @@ export class ApiStack extends Stack {
         "method.request.querystring.filename": true,
       },
       methodAuthorizationType: apigateway.AuthorizationType.NONE,
-      // authorizer: cognitoAuthorizer,
+      apiKeyRequired: true,
       lambdaEnvironment: {
         BUCKET_NAME: sharedConfig.uploadBucketName,
         UPLOADS_FOLDER: "thumbnails",

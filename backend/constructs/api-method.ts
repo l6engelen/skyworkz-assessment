@@ -29,7 +29,7 @@ type APIMethodConstructProps = {
   timeout?: cdk.Duration; //	The function execution time (in seconds) after which Lambda terminates the function.
   existingLambdaArn?: string; // Lambda arn of an existing lambda to use as method backend
   authorizer?: apigateway.IAuthorizer; // Authorizer to use for the method
-  // enableCors?: boolean; // Enable CORS for the method
+  apiKeyRequired?: boolean; // Specifies whether the method requires an API key
 };
 
 export class APIMethodConstruct extends Construct {
@@ -59,7 +59,7 @@ export class APIMethodConstruct extends Construct {
       managedPolicies = [],
       policyStatements = [],
       timeout = cdk.Duration.minutes(2),
-      // enableCors = true,
+      apiKeyRequired = false,
     } = props;
 
     if (existingLambdaArn) {
@@ -131,51 +131,9 @@ export class APIMethodConstruct extends Construct {
         responseModels: {
           [contentType]: model,
         },
-        // responseParameters: enableCors
-        //   ? {
-        //       "method.response.header.Access-Control-Allow-Origin": true,
-        //       "method.response.header.Access-Control-Allow-Headers": true,
-        //       "method.response.header.Access-Control-Allow-Methods": true,
-        //     }
-        //   : undefined,
       };
       methodResponses.push(methodResponse);
     });
-
-    // if (enableCors) {
-    //   resource.addMethod(
-    //     "OPTIONS",
-    //     new apigateway.MockIntegration({
-    //       integrationResponses: [
-    //         {
-    //           statusCode: "200",
-    //           responseParameters: {
-    //             "method.response.header.Access-Control-Allow-Origin": "'*'",
-    //             "method.response.header.Access-Control-Allow-Headers":
-    //               "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
-    //             "method.response.header.Access-Control-Allow-Methods": `'OPTIONS,${methodType}'`,
-    //           },
-    //         },
-    //       ],
-    //       passthroughBehavior: apigateway.PassthroughBehavior.NEVER,
-    //       requestTemplates: {
-    //         "application/json": '{"statusCode": 200}',
-    //       },
-    //     }),
-    //     {
-    //       methodResponses: [
-    //         {
-    //           statusCode: "200",
-    //           responseParameters: {
-    //             "method.response.header.Access-Control-Allow-Origin": true,
-    //             "method.response.header.Access-Control-Allow-Headers": true,
-    //             "method.response.header.Access-Control-Allow-Methods": true,
-    //           },
-    //         },
-    //       ],
-    //     }
-    //   );
-    // }
 
     // Add method to api resource
     this.method = resource.addMethod(
@@ -188,6 +146,7 @@ export class APIMethodConstruct extends Construct {
         authorizationType: methodAuthorizationType,
         requestParameters: requestParameters,
         methodResponses: methodResponses,
+        apiKeyRequired: apiKeyRequired,
       }
     );
   }

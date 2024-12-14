@@ -11,6 +11,7 @@ export interface BaseStackProps extends StackProps {
 interface SsmConfig {
   apiGatewayId: string;
   cloudFrontDistributionId: string;
+  apiKeyId: string;
 }
 
 interface SharedConfig {

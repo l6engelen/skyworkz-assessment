@@ -19,6 +19,7 @@ const props = {
   ssmConfig: {
     apiGatewayId: `/${envconfig.project}/api-gateway/id`,
     cloudFrontDistributionId: `/${envconfig.project}/cloudfront/distribution-id`,
+    apiKeyId: `/${envconfig.project}/api-key/id`,
   },
   sharedConfig: {
     frontendBucketName: `${envconfig.project}-frontend`,

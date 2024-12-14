@@ -1,17 +1,21 @@
 import {
   Stack,
   custom_resources as cr,
+  aws_iam as iam,
   aws_s3 as s3,
   aws_ssm as ssm,
   aws_cloudfront as cloudfront,
   aws_cloudfront_origins as cloudfrontOrigins,
+  aws_lambda as lambda,
   RemovalPolicy,
   Duration,
+  SecretValue,
 } from "aws-cdk-lib";
 
 import { Construct } from "constructs";
 
 import { BaseStackProps } from "../../interfaces/stack-props";
+import { Secret } from "aws-cdk-lib/aws-secretsmanager";
 
 export interface FrontendStackProps extends BaseStackProps {}
 
@@ -29,11 +33,6 @@ export class FrontendStack extends Stack {
       publicReadAccess: false,
     });
 
-    const apiGatewayId = ssm.StringParameter.valueForStringParameter(
-      this,
-      ssmConfig.apiGatewayId
-    );
-
     const uploadBucket = new s3.Bucket(this, "UploadBucket", {
       bucketName: sharedConfig.uploadBucketName,
       removalPolicy: RemovalPolicy.DESTROY,
@@ -41,6 +40,11 @@ export class FrontendStack extends Stack {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       publicReadAccess: false,
     });
+
+    const apiGatewayId = ssm.StringParameter.valueForStringParameter(
+      this,
+      ssmConfig.apiGatewayId
+    );
 
     const distribution = new cloudfront.Distribution(
       this,
@@ -60,8 +64,6 @@ export class FrontendStack extends Stack {
               cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
             cachePolicy: new cloudfront.CachePolicy(this, "DevCachePolicy", {
               queryStringBehavior: cloudfront.CacheQueryStringBehavior.all(),
-              headerBehavior: cloudfront.CacheHeaderBehavior.none(),
-              cookieBehavior: cloudfront.CacheCookieBehavior.none(),
               enableAcceptEncodingGzip: true,
               enableAcceptEncodingBrotli: true,
               defaultTtl: Duration.minutes(5),
@@ -74,8 +76,7 @@ export class FrontendStack extends Stack {
             origin: new cloudfrontOrigins.S3Origin(uploadBucket),
             viewerProtocolPolicy:
               cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-            // allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD,
-            // cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
+            cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
           },
         },
         defaultRootObject: "index.html",
