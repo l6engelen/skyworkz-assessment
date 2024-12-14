@@ -1,12 +1,10 @@
 import {
   Stack,
-  StackProps,
   RemovalPolicy,
   aws_apigateway as apigateway,
   aws_lambda as lambda,
   aws_iam as iam,
   aws_ssm as ssm,
-  aws_s3 as s3,
   aws_logs as logs,
   aws_cognito as cognito,
 } from "aws-cdk-lib";
@@ -25,7 +23,7 @@ export class ApiStack extends Stack {
   constructor(scope: Construct, id: string, props: ApiProps) {
     super(scope, id);
 
-    const { project, ssmConfig } = props;
+    const { project, ssmConfig, sharedConfig } = props;
 
     // Logs
     const logGroup = new logs.LogGroup(this, "Logs", {
@@ -117,11 +115,6 @@ export class ApiStack extends Stack {
       // authorizer: cognitoAuthorizer,
     });
 
-    const newsTableName = ssm.StringParameter.valueForStringParameter(
-      this,
-      ssmConfig.newsTableName
-    );
-
     // GET /news
     new APIMethodConstruct(this, "News", {
       api: api,
@@ -139,13 +132,13 @@ export class ApiStack extends Stack {
       methodAuthorizationType: apigateway.AuthorizationType.NONE,
       // authorizer: cognitoAuthorizer,
       lambdaEnvironment: {
-        NEWS_TABLE_NAME: newsTableName,
+        NEWS_TABLE_NAME: sharedConfig.newsTableName,
       },
       policyStatements: [
         new iam.PolicyStatement({
           actions: ["dynamodb:Query"],
           resources: [
-            `arn:aws:dynamodb:${this.region}:${this.account}:table/${newsTableName}`,
+            `arn:aws:dynamodb:${this.region}:${this.account}:table/${sharedConfig.newsTableName}`,
           ],
         }),
       ],
@@ -164,29 +157,17 @@ export class ApiStack extends Stack {
       methodAuthorizationType: apigateway.AuthorizationType.NONE,
       // authorizer: cognitoAuthorizer,
       lambdaEnvironment: {
-        NEWS_TABLE_NAME: newsTableName,
+        NEWS_TABLE_NAME: sharedConfig.newsTableName,
       },
       policyStatements: [
         new iam.PolicyStatement({
           actions: ["dynamodb:PutItem"],
           resources: [
-            `arn:aws:dynamodb:${this.region}:${this.account}:table/${newsTableName}`,
+            `arn:aws:dynamodb:${this.region}:${this.account}:table/${sharedConfig.newsTableName}`,
           ],
         }),
       ],
     });
-
-    // const uploadBucket = new s3.Bucket(this, "UploadBucket", {
-    //   bucketName: `${project}-${stage}-uploads`,
-    //   removalPolicy: RemovalPolicy.DESTROY,
-    //   autoDeleteObjects: true,
-    //   blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-    //   publicReadAccess: false,
-    // });
-    // new ssm.StringParameter(this, "UploadBucketNameParameter", {
-    //   parameterName: ssmConfig.uploadBucketName,
-    //   stringValue: uploadBucket.bucketName,
-    // });
 
     // GET /pre-signed-url
     new APIMethodConstruct(this, "PreSignedUrl", {
@@ -204,13 +185,13 @@ export class ApiStack extends Stack {
       methodAuthorizationType: apigateway.AuthorizationType.NONE,
       // authorizer: cognitoAuthorizer,
       lambdaEnvironment: {
-        BUCKET_NAME: `${project}-uploads`,
+        BUCKET_NAME: sharedConfig.uploadBucketName,
         UPLOADS_FOLDER: "thumbnails",
       },
       policyStatements: [
         new iam.PolicyStatement({
           actions: ["s3:PutObject"],
-          resources: [`arn:aws:s3:::${project}-uploads/*`],
+          resources: [`arn:aws:s3:::${sharedConfig.uploadBucketName}/*`],
         }),
       ],
     });

@@ -17,9 +17,13 @@ const props = {
   env: { account: envconfig.awsAccount, region: envconfig.awsRegion },
   project: envconfig.project,
   ssmConfig: {
-    newsTableName: `/${envconfig.project}/dynamodb/table-name`,
     apiGatewayId: `/${envconfig.project}/api-gateway/id`,
-    uploadBucketName: `/${envconfig.project}/s3/upload-bucket-name`,
+    cloudFrontDistributionId: `/${envconfig.project}/cloudfront/distribution-id`,
+  },
+  sharedConfig: {
+    frontendBucketName: `${envconfig.project}-frontend`,
+    uploadBucketName: `${envconfig.project}-uploads`,
+    newsTableName: `${envconfig.project}-news`,
   },
 } as BaseStackProps;
 

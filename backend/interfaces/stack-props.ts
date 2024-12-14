@@ -5,10 +5,16 @@ export interface BaseStackProps extends StackProps {
   project: string;
   stage: string;
   ssmConfig: SsmConfig;
+  sharedConfig: SharedConfig;
 }
 
 interface SsmConfig {
-  newsTableName: string;
   apiGatewayId: string;
+  cloudFrontDistributionId: string;
+}
+
+interface SharedConfig {
+  frontendBucketName: string;
   uploadBucketName: string;
+  newsTableName: string;
 }

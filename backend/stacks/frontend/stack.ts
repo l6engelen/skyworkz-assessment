@@ -3,7 +3,6 @@ import {
   custom_resources as cr,
   aws_s3 as s3,
   aws_ssm as ssm,
-  aws_s3_deployment as s3Deployment,
   aws_cloudfront as cloudfront,
   aws_cloudfront_origins as cloudfrontOrigins,
   RemovalPolicy,
@@ -20,10 +19,10 @@ export class FrontendStack extends Stack {
   constructor(scope: Construct, id: string, props: FrontendStackProps) {
     super(scope, id, props);
 
-    const { project, ssmConfig } = props;
+    const { ssmConfig, sharedConfig } = props;
 
-    const bucket = new s3.Bucket(this, "FrontendBucket", {
-      bucketName: `${project}-frontend`,
+    const frontendBucket = new s3.Bucket(this, "FrontendBucket", {
+      bucketName: sharedConfig.frontendBucketName,
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
@@ -35,17 +34,8 @@ export class FrontendStack extends Stack {
       ssmConfig.apiGatewayId
     );
 
-    // const uploadBucket = s3.Bucket.fromBucketName(
-    //   this,
-    //   "UploadBucket",
-    //   ssm.StringParameter.valueForStringParameter(
-    //     this,
-    //     ssmConfig.uploadBucketName
-    //   )
-    // );
-
     const uploadBucket = new s3.Bucket(this, "UploadBucket", {
-      bucketName: `${project}-uploads`,
+      bucketName: sharedConfig.uploadBucketName,
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
@@ -57,7 +47,7 @@ export class FrontendStack extends Stack {
       "CloudFrontDistribution",
       {
         defaultBehavior: {
-          origin: new cloudfrontOrigins.S3Origin(bucket),
+          origin: new cloudfrontOrigins.S3Origin(frontendBucket),
           viewerProtocolPolicy:
             cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         },
@@ -91,6 +81,11 @@ export class FrontendStack extends Stack {
         defaultRootObject: "index.html",
       }
     );
+
+    new ssm.StringParameter(this, "CloudfrontDistributionParameter", {
+      parameterName: ssmConfig.cloudFrontDistributionId,
+      stringValue: distribution.distributionId,
+    });
 
     const corsPolicy = {
       CORSRules: [
@@ -132,13 +127,6 @@ export class FrontendStack extends Stack {
           `arn:aws:s3:::${uploadBucket.bucketName}/*`,
         ],
       }),
-    });
-
-    new s3Deployment.BucketDeployment(this, "DeployFrontend", {
-      sources: [s3Deployment.Source.asset("./frontend/out")],
-      destinationBucket: bucket,
-      distribution,
-      distributionPaths: ["/*"],
     });
   }
 }

@@ -1,0 +1,26 @@
+name: Deploy Environment
+description: Setup environment and install dependencies
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: npm
+
+    - name: Install AWS CDK CLI
+      shell: bash
+      run: npm install -g aws-cdk
+
+    - name: Install npm dependencies
+      shell: bash
+      run: npm ci
+
+    - name: Setup AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v3
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: eu-west-1
