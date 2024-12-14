@@ -66,7 +66,7 @@ export class FrontendStack extends Stack {
               queryStringBehavior: cloudfront.CacheQueryStringBehavior.all(),
               enableAcceptEncodingGzip: true,
               enableAcceptEncodingBrotli: true,
-              defaultTtl: Duration.minutes(5),
+              defaultTtl: Duration.minutes(1),
               minTtl: Duration.minutes(1),
               maxTtl: Duration.minutes(10),
             }),
