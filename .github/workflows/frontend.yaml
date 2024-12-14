@@ -69,14 +69,10 @@ jobs:
           DISTRIBUTION_ID=$(aws ssm get-parameter --name "/skyworkz/cloudfront/distribution-id" --query "Parameter.Value" --output text)
           echo "DISTRIBUTION_ID=$DISTRIBUTION_ID" >> $GITHUB_OUTPUT
 
-      - name: Test output
+      - name: Sync Files to S3
         run: |
-          echo ${{ steps.get_cloudfront_distribution_id.outputs.DISTRIBUTION_ID }}
+          aws s3 sync frontend/out/ s3://skyworkz-frontend --delete
 
-      # - name: Sync Files to S3
-      #   run: |
-      #     aws s3 sync frontend/out/ s3://skyworkz-frontend --delete
-
-      # - name: Invalidate CloudFront Cache
-      #   run: |
-      #     aws cloudfront create-invalidation --distribution-id ${{ steps.get_cloudfront_distribution_id.outputs.DISTRIBUTION_ID }} --paths "/*"
+      - name: Invalidate CloudFront Cache
+        run: |
+          aws cloudfront create-invalidation --distribution-id ${{ steps.get_cloudfront_distribution_id.outputs.DISTRIBUTION_ID }} --paths "/*"
