@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Deploy Environment
-        uses: ./actions/setup_deploy_env
+        uses: ./github/actions/setup_deploy_env
 
       - name: Synthesize CDK App
         run: cdk synth
@@ -31,7 +31,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Deploy Environment
-        uses: ./actions/setup_deploy_env
+        uses: ./github/actions/setup_deploy_env
 
       - name: Deploy CDK App
         run: cdk deploy --all --require-approval never
