@@ -26,37 +26,79 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Main container layout */
+.main-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+/* News grid layout */
+.news-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Two items per row */
+  gap: 20px; /* Space between tiles */
+}
+
+/* Individual news item styling */
 .news-item {
   background: var(--block-background);
   border: 1px solid var(--block-border);
   border-radius: 8px;
   padding: 16px;
-  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column; /* Stack content vertically */
+  justify-content: space-between;
+  min-height: 250px; /* Set a minimum height for tiles */
 }
 
+/* Thumbnail and title layout */
+.news-item-header {
+  display: flex; /* Place thumbnail and title side by side */
+  gap: 16px; /* Space between thumbnail and title */
+  align-items: center; /* Align items vertically */
+}
+
+/* Thumbnail styling */
+.news-thumbnail {
+  width: 120px; /* Fixed thumbnail width */
+  height: 120px; /* Fixed thumbnail height */
+  object-fit: cover; /* Ensure aspect ratio is preserved */
+  border-radius: 8px;
+}
+
+/* Title styling */
 .news-title {
   color: var(--highlight);
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: bold;
-  margin-bottom: 8px;
+  margin: 0;
 }
 
+/* Description styling */
 .news-description {
   font-size: 1rem;
-  margin-bottom: 8px;
+  color: var(--foreground);
+  margin-top: 12px;
 }
 
+/* Date styling */
 .news-date {
   font-size: 0.875rem;
   color: var(--block-border);
+  margin-top: auto; /* Push the date to the bottom */
+  text-align: right; /* Align date to the right */
 }
 
-.form-container {
+/* Form styling */
+.form {
+  flex: 1; /* Adjust space allocation for the form */
   background: var(--block-background);
   border: 1px solid var(--block-border);
   border-radius: 8px;
   padding: 16px;
-  margin-top: 24px;
+  margin-top: 50px
 }
 
 button {

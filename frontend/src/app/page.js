@@ -2,6 +2,13 @@
 
 import { useEffect, useState } from "react";
 
+// import MockNewsPage from "./mockpage";
+
+// export default function Page() {
+//   return <MockNewsPage />;
+// }
+// function NewsPage() {
+
 export default function NewsPage() {
   const [newsItems, setNewsItems] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -115,26 +122,35 @@ export default function NewsPage() {
       {loading && newsItems.length === 0 && <p>Loading news...</p>}
       {!loading && newsItems.length === 0 && <p>No news items found.</p>}
 
-      <ul>
-        {newsItems.map((item) => (
-          <li key={item.id} className="news-item border p-4 mb-4 rounded">
-            {item.thumbnail_key && (
-              <img
-                src={`thumbnails/${item.thumbnail_key}`}
-                alt={item.title}
-                className="w-32 h-32 object-cover mb-4"
-              />
-            )}
-            <h2 className="news-title font-bold text-lg">{item.title}</h2>
-            <p className="news-description">{item.description}</p>
-            <small className="news-date text-gray-500">
-              Posted on: {new Date(item.date).toLocaleString()}
-            </small>
-          </li>
-        ))}
-      </ul>
+      <div className="main-container">
+      {/* News Items */}
+      <div className="news-grid">
+        {newsItems
+            .sort((a, b) => new Date(b.date) - new Date(a.date)) // Sort by most recent date
+            .map((item) => (
+            <div key={item.id} className="news-item">
+                <div className="news-item-header">
+                {item.thumbnail_key && (
+                    <img
+                    src={`/thumbnails/${item.thumbnail_key}`}
+                    alt={item.title}
+                    className="news-thumbnail"
+                    />
+                )}
+                <h2 className="news-title">{item.title}</h2>
+                </div>
+                <p className="news-description">{item.description}</p>
+                <small className="news-date">
+                {new Date(item.date).toLocaleString("en-US", {
+                    dateStyle: "long",
+                    timeStyle: "short",
+                })}
+                </small>
+            </div>
+            ))}
+        </div>
 
-      {nextKey && (
+      {/* {nextKey && ( //TODO check this
         <button
           onClick={() => fetchNews(nextKey)}
           disabled={loading}
@@ -142,55 +158,97 @@ export default function NewsPage() {
         >
           {loading ? "Loading..." : "Load More"}
         </button>
-      )}
+      )} */}
+      </div>
+
 
       {/* Post News Form */}
-      <form onSubmit={postNews} className="form-container mt-8 p-4 border rounded">
-        <h2 className="text-xl font-bold mb-4">Post a News Item</h2>
+      <div className="form-container">
+        <form onSubmit={postNews} className="form">
+        <h2 className="text-xl font-bold mb-4">Post News Item</h2>
+
         <div className="mb-4">
           <label className="block mb-2 font-semibold">
             Title:
             <input
               type="text"
               value={newTitle}
-              onChange={(e) => setNewTitle(e.target.value)}
+              onChange={(e) => {
+                setNewTitle(e.target.value);
+                if (e.target.value.length > 100) {
+                  setError("Title must not exceed 100 characters.");
+                } else {
+                  setError(null);
+                }
+              }}
               required
+              maxLength={100}
               className="block w-full p-2 border border-gray-300 rounded mt-1"
             />
           </label>
+          <small className="text-gray-500">{newTitle.length}/100 characters</small>
+          {error && <div className="text-red-500 mt-2">{error}</div>}
         </div>
+
         <div className="mb-4">
           <label className="block mb-2 font-semibold">
             Description:
             <textarea
               value={newDescription}
-              onChange={(e) => setNewDescription(e.target.value)}
+              onChange={(e) => {
+                setNewDescription(e.target.value);
+                if (e.target.value.length > 300) {
+                  setError("Description must not exceed 300 characters.");
+                } else {
+                  setError(null);
+                }
+              }}
               required
+              maxLength={300}
               className="block w-full p-2 border border-gray-300 rounded mt-1"
             />
           </label>
+          <small className="text-gray-500">{newDescription.length}/300 characters</small>
+          {error && <div className="text-red-500 mt-2">{error}</div>}
         </div>
+
         <div className="mb-4">
           <label className="block mb-2 font-semibold">
             Image:
             <input
               type="file"
               onChange={(e) => {
-                if (e.target.files[0]) uploadFile(e.target.files[0]);
+                const file = e.target.files[0];
+                if (file) {
+                  if (file.size > 5 * 1024 * 1024) {
+                    setError("Image size must not exceed 5MB.");
+                  } else {
+                    setError(null);
+                    uploadFile(file);
+                  }
+                }
               }}
               accept="image/*"
               className="block w-full p-2 border border-gray-300 rounded mt-1"
             />
           </label>
+          {error && <div className="text-red-500 mt-2">{error}</div>}
         </div>
+
+        {/* Submit Button */}
         <button
-          type="submit"
-          disabled={loading || uploading || !imageKey}
-          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-        >
-          {loading || uploading ? "Posting..." : "Post News"}
-        </button>
+              type="submit"
+              disabled={loading || uploading || !newTitle || !newDescription}
+              className={`${
+                loading || uploading || !newTitle || !newDescription
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-green-500 hover:bg-green-600"
+              } text-white px-4 py-2 rounded`}
+            >
+              {loading || uploading ? "Posting..." : "Post News"}
+            </button>
       </form>
+      </div>
     </div>
   );
 }
