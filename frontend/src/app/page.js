@@ -116,7 +116,8 @@ export default function NewsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">Latest News</h1>
+      {/* <h1 className="text-2xl font-bold mb-4">Latest News</h1> */}
+      <h1 className="text-3xl font-bold mb-4 text-yellow-500">Latest News 🚀</h1>
 
       {error && <div className="text-red-500 mb-4">{error}</div>}
       {loading && newsItems.length === 0 && <p>Loading news...</p>}
